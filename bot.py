@@ -78,48 +78,47 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- TARJIMALAR (shartnoma matni to'liq) ----------
+# ---------- TARJIMALAR (shartnoma to'liq) ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
         "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:","kz":"🌐 Тілді таңдаңыз:","kg":"🌐 Тилди тандаңыз:","tj":"🌐 Забонро интихоб кунед:","tr":"🌐 Dil seçin:"},
         "terms": {
-            "uz": """📜 *KARVEX LOGISTIKA PLATFORMASI FOYDALANUVCHI SHARTNOMASI*
-
-1. UMUMIY QOIDALAR
-1.1. Ushbu shartnoma “Karvex” logistika platformasi orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.
-1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi va tashish jarayonining to‘g‘ridan-to‘g‘ri ijrochisi emas.
-1.3. Platformadan foydalanish orqali foydalanuvchi ushbu shartnoma shartlariga to‘liq rozilik bildiradi.
-2. FOYDALANUVCHILARNI RO‘YXATDAN O‘TKAZISH VA TEKSHIRUV
-2.1. Har bir foydalanuvchi quyidagi bosqichlardan o‘tishi shart:
-- Telefon raqamini tasdiqlash (OTP yoki Telegram orqali)
-- Pasport yoki ID kartani taqdim etish
-- Platforma tomonidan verifikatsiyadan o‘tish
-2.2. Noto‘g‘ri yoki yolg‘on ma’lumot bergan foydalanuvchilar bloklanadi.
-3. XIZMAT KO‘RSATISH SHARTLARI
-3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma’lumot beradi: Yuk turi, Og‘irligi, Manzil (qayerdan → qayerga)
-3.2. Haydovchi yukni belgilangan vaqtda va holatda yetkazishga majbur.
-3.3. Platforma faqat vositachi bo‘lib, tomonlar o‘rtasidagi majburiyatlar uchun cheklangan javobgarlikka ega.
-4. JAVOBGARLIK VA XAVFSIZLIK
-4.1. Yukning yo‘qolishi, shikastlanishi yoki kechikishi uchun haydovchi javobgar hisoblanadi.
-4.2. Yuk beruvchi noto‘g‘ri ma’lumot bergan taqdirda javobgar bo‘ladi.
-4.3. Platforma quyidagi holatlar uchun javobgar emas: Tabiiy ofatlar, Yo‘l-transport hodisalari, Fors-major holatlar.
-5. TO‘LOV VA HISOB-KITOB
-5.1. To‘lov tomonlar kelishuvi asosida amalga oshiriladi.
-5.2. Platforma xizmat haqi (komissiya) olish huquqiga ega.
-5.3. To‘lov tizimi orqali amalga oshirilgan operatsiyalar qaytarilmaydi (istisnolar bundan mustasno).
-6. REYTING VA FOYDALANUVCHI OBRO‘SI
-6.1. Har bir foydalanuvchi xizmatdan so‘ng baholanadi.
-6.2. Past reytingli foydalanuvchilar platformadan chetlashtirilishi mumkin.
-7. NIZOLARNI HAL QILISH
-7.1. Nizolar birinchi navbatda muzokara orqali hal qilinadi.
-7.2. Hal etilmagan holatda O‘zbekiston Respublikasi qonunchiligiga muvofiq sud orqali ko‘rib chiqiladi.
-8. MAXFIYLIK SIYOSATI
-8.1. Foydalanuvchi ma’lumotlari himoyalanadi va uchinchi shaxslarga berilmaydi.
-8.2. Platforma xavfsizlik maqsadida ma’lumotlardan foydalanish huquqiga ega.
-9. YAKUNIY QOIDALAR
-9.1. Platforma ushbu shartnomani istalgan vaqtda yangilash huquqiga ega.
-9.2. Foydalanuvchi platformadan foydalanishda davom etsa — yangi shartlarga rozilik bildirgan hisoblanadi.""",
+            "uz": ("📜 *KARVEX LOGISTIKA PLATFORMASI FOYDALANUVCHI SHARTNOMASI*\n\n"
+                   "1. UMUMIY QOIDALAR\n"
+                   "1.1. Ushbu shartnoma “Karvex” logistika platformasi orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.\n"
+                   "1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi va tashish jarayonining to‘g‘ridan-to‘g‘ri ijrochisi emas.\n"
+                   "1.3. Platformadan foydalanish orqali foydalanuvchi ushbu shartnoma shartlariga to‘liq rozilik bildiradi.\n\n"
+                   "2. FOYDALANUVCHILARNI RO‘YXATDAN O‘TKAZISH VA TEKSHIRUV\n"
+                   "2.1. Har bir foydalanuvchi quyidagi bosqichlardan o‘tishi shart:\n"
+                   "- Telefon raqamini tasdiqlash (OTP yoki Telegram orqali)\n"
+                   "- Pasport yoki ID kartani taqdim etish\n"
+                   "- Platforma tomonidan verifikatsiyadan o‘tish\n"
+                   "2.2. Noto‘g‘ri yoki yolg‘on ma’lumot bergan foydalanuvchilar bloklanadi.\n\n"
+                   "3. XIZMAT KO‘RSATISH SHARTLARI\n"
+                   "3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma’lumot beradi: Yuk turi, Og‘irligi, Manzil (qayerdan → qayerga)\n"
+                   "3.2. Haydovchi yukni belgilangan vaqtda va holatda yetkazishga majbur.\n"
+                   "3.3. Platforma faqat vositachi bo‘lib, tomonlar o‘rtasidagi majburiyatlar uchun cheklangan javobgarlikka ega.\n\n"
+                   "4. JAVOBGARLIK VA XAVFSIZLIK\n"
+                   "4.1. Yukning yo‘qolishi, shikastlanishi yoki kechikishi uchun haydovchi javobgar hisoblanadi.\n"
+                   "4.2. Yuk beruvchi noto‘g‘ri ma’lumot bergan taqdirda javobgar bo‘ladi.\n"
+                   "4.3. Platforma quyidagi holatlar uchun javobgar emas: Tabiiy ofatlar, Yo‘l-transport hodisalari, Fors-major holatlar.\n\n"
+                   "5. TO‘LOV VA HISOB-KITOB\n"
+                   "5.1. To‘lov tomonlar kelishuvi asosida amalga oshiriladi.\n"
+                   "5.2. Platforma xizmat haqi (komissiya) olish huquqiga ega.\n"
+                   "5.3. To‘lov tizimi orqali amalga oshirilgan operatsiyalar qaytarilmaydi (istisnolar bundan mustasno).\n\n"
+                   "6. REYTING VA FOYDALANUVCHI OBRO‘SI\n"
+                   "6.1. Har bir foydalanuvchi xizmatdan so‘ng baholanadi.\n"
+                   "6.2. Past reytingli foydalanuvchilar platformadan chetlashtirilishi mumkin.\n\n"
+                   "7. NIZOLARNI HAL QILISH\n"
+                   "7.1. Nizolar birinchi navbatda muzokara orqali hal qilinadi.\n"
+                   "7.2. Hal etilmagan holatda O‘zbekiston Respublikasi qonunchiligiga muvofiq sud orqali ko‘rib chiqiladi.\n\n"
+                   "8. MAXFIYLIK SIYOSATI\n"
+                   "8.1. Foydalanuvchi ma’lumotlari himoyalanadi va uchinchi shaxslarga berilmaydi.\n"
+                   "8.2. Platforma xavfsizlik maqsadida ma’lumotlardan foydalanish huquqiga ega.\n\n"
+                   "9. YAKUNIY QOIDALAR\n"
+                   "9.1. Platforma ushbu shartnomani istalgan vaqtda yangilash huquqiga ega.\n"
+                   "9.2. Foydalanuvchi platformadan foydalanishda davom etsa — yangi shartlarga rozilik bildirgan hisoblanadi."),
             "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*",
             "en": "📜 *TERMS OF USE*"
         },
@@ -267,7 +266,7 @@ def cargo_type_cb(c):
     set_state(uid,"cargo_weight")
     bot.edit_message_text(chat_id=uid, message_id=c.message.message_id, text=t(uid,"cargo_weight"), reply_markup=back_btn(uid))
 
-# --- Yuk berish ---
+# --- Yuk berish bosqichlari ---
 @bot.message_handler(func=lambda m: get_state(m.chat.id) in ["cargo_weight","cargo_pickup","cargo_delivery","cargo_phone"])
 def cargo_steps(m):
     uid=m.chat.id; state=get_state(uid)
@@ -296,19 +295,144 @@ def cargo_steps(m):
         try: bot.send_message(ADMIN_ID, f"🔔 Yangi yuk!\n👤 {m.from_user.first_name}\n📦 {data['cargo']} | {data['weight']}t\n📍 {data['pickup']} → {data['delivery']}\n📞 {phone}")
         except: pass
 
-# ... (qolgan handlerlar: find_cargo, driver, verify, chat, admin – avvalgi ishchi kodda mavjud.
-# Hammasi to'liq, shu yerda keltirish uchun juda uzun, lekin yuqoridagi kod o'zida barcha kerakli handlerlarni saqlaydi.)
+# --- Yuk qidirish ---
+@bot.message_handler(func=lambda m: get_state(m.chat.id)=="find_cargo")
+def find_cargo(m):
+    uid=m.chat.id; city=m.text
+    s=Session()
+    results=s.query(CargoRequest).filter((CargoRequest.pickup.ilike(f"%{city}%")) | (CargoRequest.delivery.ilike(f"%{city}%"))).all()
+    s.close()
+    if results:
+        txt=f"🔍 {city} bo'yicha yuklar:\n\n"
+        for r in results: txt+=f"📦 {r.cargo_type} | {r.pickup}→{r.delivery} | 📞 {r.phone}\n"
+    else: txt=t(uid,"no_cargo")
+    bot.send_message(uid, txt, reply_markup=main_menu(uid))
+    set_state(uid,"main")
 
-# ---------- FALLBACK ----------
+# --- Haydovchi ro'yxatdan o'tish ---
+@bot.message_handler(func=lambda m: get_state(m.chat.id)=="driver_name")
+def driver_name(m):
+    uid=m.chat.id; set_data(uid,"driver_name",m.text); set_state(uid,"driver_phone")
+    bot.send_message(uid, "📞 Telefon raqamingiz:", reply_markup=back_btn(uid))
+
+@bot.message_handler(func=lambda m: get_state(m.chat.id)=="driver_phone")
+def driver_phone(m):
+    uid=m.chat.id; set_data(uid,"driver_phone",m.text); set_state(uid,"driver_car")
+    bot.send_message(uid, "🚛 Mashina modeli:", reply_markup=back_btn(uid))
+
+@bot.message_handler(func=lambda m: get_state(m.chat.id)=="driver_car")
+def driver_car(m):
+    uid=m.chat.id; car=m.text
+    s=Session()
+    exist=s.query(Driver).filter_by(user_id=uid).first()
+    if exist:
+        exist.car_model=car; exist.phone=get_data(uid,"driver_phone"); exist.full_name=get_data(uid,"driver_name")
+    else:
+        d=Driver(user_id=uid, full_name=get_data(uid,"driver_name"), phone=get_data(uid,"driver_phone"), car_model=car)
+        s.add(d)
+    s.commit(); s.close()
+    set_state(uid,"main")
+    bot.send_message(uid, "✅ Haydovchi sifatida ro'yxatdan o'tdingiz!", reply_markup=main_menu(uid))
+
+# --- Verifikatsiya ---
+@bot.callback_query_handler(func=lambda c: c.data=="verify_phone")
+def verify_phone(c):
+    uid=c.message.chat.id
+    mk=types.ReplyKeyboardMarkup(resize_keyboard=True)
+    mk.add(types.KeyboardButton("📱 Raqamni yuborish", request_contact=True))
+    bot.send_message(uid, "Telefon raqamingizni yuboring:", reply_markup=mk)
+
+@bot.message_handler(content_types=['contact'])
+def contact_handler(m):
+    uid=m.chat.id; phone=m.contact.phone_number
+    s=Session(); u=s.query(User).filter_by(telegram_id=uid).first()
+    u.phone=phone; u.phone_verified=True; s.commit(); s.close()
+    bot.send_message(uid, "✅ Telefon tasdiqlandi!", reply_markup=types.ReplyKeyboardRemove())
+
+@bot.callback_query_handler(func=lambda c: c.data=="verify_passport")
+def verify_passport_cb(c):
+    uid=c.message.chat.id; set_state(uid,"waiting_passport")
+    bot.send_message(uid, "📸 Pasport yoki ID karta rasmini yuboring:")
+
+@bot.message_handler(content_types=['photo'], func=lambda m: get_state(m.chat.id)=="waiting_passport")
+def passport_photo(m):
+    uid=m.chat.id; file_id=m.photo[-1].file_id
+    s=Session(); u=s.query(User).filter_by(telegram_id=uid).first()
+    u.passport_photo_id=file_id; s.commit(); s.close()
+    bot.send_photo(ADMIN_ID, file_id, caption=f"Pasport tekshirish\n👤 ID: {uid}")
+    bot.send_message(uid, "✅ Rasm qabul qilindi. Admin tasdiqlaydi.", reply_markup=main_menu(uid))
+    set_state(uid,"main")
+
+# --- Qo'llab-quvvatlash ---
+@bot.message_handler(func=lambda m: get_state(m.chat.id)=="chat_admin")
+def chat_admin(m):
+    uid=m.chat.id
+    bot.send_message(ADMIN_ID, f"💬 Foydalanuvchi xabari (ID: {uid}):\n{m.text}")
+    bot.send_message(uid, "✅ Xabar yuborildi. Admin tez orada javob beradi.", reply_markup=main_menu(uid))
+    set_state(uid,"main")
+
+# --- Admin panel ---
+@bot.message_handler(commands=['admin'])
+def admin_panel(m):
+    if m.chat.id!=ADMIN_ID: return
+    mk=types.InlineKeyboardMarkup(row_width=2)
+    mk.add(types.InlineKeyboardButton("📊 Statistika", callback_data="admin_stats"),
+           types.InlineKeyboardButton("📦 Yuklar", callback_data="admin_yuklar"),
+           types.InlineKeyboardButton("🚛 Haydovchilar", callback_data="admin_drivers"),
+           types.InlineKeyboardButton("💰 Balanslar", callback_data="admin_balance"))
+    bot.send_message(ADMIN_ID, "👑 *Admin Panel*", parse_mode="Markdown", reply_markup=mk)
+
+@bot.callback_query_handler(func=lambda c: c.data.startswith("admin_"))
+def admin_cb(c):
+    if c.message.chat.id!=ADMIN_ID: return
+    data=c.data; s=Session()
+    if data=="admin_stats":
+        users=s.query(User).count(); drivers=s.query(Driver).count(); cargos=s.query(CargoRequest).count()
+        txt=f"👥 Foydalanuvchilar: {users}\n🚛 Haydovchilar: {drivers}\n📦 Yuklar: {cargos}"
+    elif data=="admin_yuklar":
+        cargos=s.query(CargoRequest).order_by(CargoRequest.created_at.desc()).limit(20).all()
+        txt="\n".join([f"📦 {c.cargo_type} | {c.pickup}→{c.delivery}" for c in cargos]) if cargos else "Yuklar yo'q"
+    elif data=="admin_drivers":
+        drivers=s.query(Driver).all()
+        txt="\n".join([f"🚛 {d.full_name} | {d.car_model}" for d in drivers]) if drivers else "Haydovchilar yo'q"
+    elif data=="admin_balance":
+        users=s.query(User).all()
+        txt="\n".join([f"👤 {u.first_name}: {u.balance} so'm" for u in users])
+    s.close()
+    bot.edit_message_text(chat_id=ADMIN_ID, message_id=c.message.message_id, text=txt, reply_markup=back_btn(ADMIN_ID))
+
+@bot.message_handler(commands=['add_balance'])
+def add_balance(m):
+    if m.chat.id!=ADMIN_ID: return
+    try:
+        _, tid, amount = m.text.split(); tid=int(tid); amount=float(amount)
+        s=Session(); u=s.query(User).filter_by(telegram_id=tid).first()
+        if u: u.balance+=amount; s.commit()
+        s.close()
+        bot.send_message(tid, f"💰 {amount} so'm hisobingizga qo'shildi. Balans: {u.balance} so'm")
+        bot.send_message(ADMIN_ID, f"✅ {tid} ga {amount} so'm qo'shildi.")
+    except: bot.send_message(ADMIN_ID, "Format: /add_balance <user_id> <summa>")
+
+@bot.message_handler(commands=['verify_pass'])
+def verify_pass(m):
+    if m.chat.id!=ADMIN_ID: return
+    try:
+        _, tid, action = m.text.split(); tid=int(tid)
+        s=Session(); u=s.query(User).filter_by(telegram_id=tid).first()
+        if u:
+            if action=="approve": u.passport_verified=True; bot.send_message(tid, "✅ Pasportingiz tasdiqlandi!")
+            elif action=="reject": u.passport_verified=False; bot.send_message(tid, "❌ Pasport rad etildi.")
+            s.commit()
+        s.close()
+    except: bot.send_message(ADMIN_ID, "Format: /verify_pass <user_id> <approve/reject>")
+
 @bot.message_handler(func=lambda m: True)
 def fallback(m):
     uid=m.chat.id; u=get_user(uid)
     if not u or not u.agreed_terms: start(m)
     else: bot.send_message(uid, "Iltimos menyudan tanlang.", reply_markup=main_menu(uid))
 
-# ---------- ISHGA TUSHIRISH ----------
-if __name__ == "__main__":
-    print("✅ KARVEXASIA professional bot ishga tushdi!")
-    while True:
-        try: bot.polling(none_stop=True)
-        except Exception as e: print(f"Xatolik: {e}"); time.sleep(5)
+print("✅ KARVEXASIA professional bot ishga tushdi!")
+while True:
+    try: bot.polling(none_stop=True)
+    except Exception as e: print(f"Xatolik: {e}"); time.sleep(5)
