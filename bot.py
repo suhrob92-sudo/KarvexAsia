@@ -184,8 +184,7 @@ def lang_cb(c):
     s=Session(); u=s.query(User).filter_by(telegram_id=uid).first()
     u.language=lang; s.commit(); s.close()
     set_state(uid,"main")
-    bot.send_message(uid, t(uid,"welcome",balance=u.balance), parse_mode="Markdown", reply_markup=main_menu(uid))
-
+    bot.send_message(uid, t(uid,"welcome",balance=u.balance), parse_mode="Markdown", reply_markup=main_menu(uid))  # bu yerda
 @bot.callback_query_handler(func=lambda c: c.data=="back_main")
 def back_main(c):
     uid=c.message.chat.id; u=get_user(uid); set_state(uid,"main")
