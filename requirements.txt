@@ -1,3 +1,7 @@
 pyTelegramBotAPI
+flask
+gunicorn
+sqlalchemy
+requestspyTelegramBotAPI
 sqlalchemy
 fpdf

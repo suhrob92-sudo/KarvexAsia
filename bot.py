@@ -1,14 +1,21 @@
+import os
 import telebot
 from telebot import types
 from datetime import datetime
-import time, os, math
+import time, math
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
+from flask import Flask, request
 
+# ---------- Flask ----------
+app = Flask(__name__)
+
+# ---------- Telegram bot ----------
 TOKEN = os.getenv("BOT_TOKEN", "8719425603:AAHZf6HZ1SBh7l8pYjgTvele-ElC5Nf54Hs")
-ADMIN_ID = 1722191240
+ADMIN_ID = int(os.getenv("ADMIN_ID", "1722191240"))
 bot = telebot.TeleBot(TOKEN)
 
+# ---------- Konstantalar ----------
 ADMIN_INFO = {
     "username": "@Korvex_Asia", "phone": "+998930694540",
     "email": "yusupboyevsuhrob802@gmail.com", "company": "KARVEXASIA",
@@ -19,6 +26,7 @@ CARGO_TYPES = ["Qishloq xo'jaligi", "Qurilish materiallari", "Elektronika",
                "Oziq-ovqat", "Kimyoviy moddalar", "Avtomobil zapchastlari",
                "Mebel", "To'qimachilik", "Boshqa"]
 
+# ---------- Ma'lumotlar bazasi ----------
 engine = create_engine("sqlite:///karvexasia.db", echo=False)
 Base = declarative_base()
 Session = sessionmaker(bind=engine, expire_on_commit=False)
@@ -60,6 +68,7 @@ class CargoRequest(Base):
 
 Base.metadata.create_all(engine)
 
+# ---------- State ----------
 user_state = {}
 user_data = {}
 
@@ -77,7 +86,7 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- TARJIMALAR (7 til, qisqa shartnoma) ----------
+# ---------- Tarjimalar (7 til) ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
@@ -115,7 +124,7 @@ def t(uid, key, **kw):
     try: return txt.format(**kw)
     except: return txt
 
-# ---------- KLAVIATURALAR ----------
+# ---------- Klaviaturalar ----------
 def lang_kb():
     mk = types.InlineKeyboardMarkup(row_width=2)
     mk.add(types.InlineKeyboardButton("🇺🇿 O'zbek", callback_data="lang_uz"),
@@ -141,7 +150,7 @@ def main_menu(uid):
 def back_btn(uid):
     return types.InlineKeyboardMarkup().add(types.InlineKeyboardButton(t(uid,"back"), callback_data="back_main"))
 
-# ---------- MASOFA ----------
+# ---------- Masofa ----------
 def get_distance(c1,c2):
     coords = {"Toshkent":(41.30,69.24),"Samarqand":(39.63,66.97),"Buxoro":(39.77,64.43),
               "Almati":(43.22,76.85),"Namangan":(41.00,71.67),"Andijon":(40.78,72.34),
@@ -154,7 +163,7 @@ def get_distance(c1,c2):
     a=math.sin(dlat/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin(dlon/2)**2
     return round(6371*2*math.asin(math.sqrt(a)))
 
-# ========== HANDLERLAR ==========
+# ========== BOT HANDLERLAR ==========
 @bot.message_handler(commands=['start'])
 def start(m):
     uid = m.chat.id
@@ -164,6 +173,14 @@ def start(m):
     mk.add(types.InlineKeyboardButton(t(uid, "accept"), callback_data="accept_terms"),
            types.InlineKeyboardButton(t(uid, "decline"), callback_data="decline_terms"))
     bot.send_message(uid, t(uid, "terms"), parse_mode="Markdown", reply_markup=mk)
+
+@bot.message_handler(commands=['reset'])
+def reset_handler(m):
+    uid = m.chat.id
+    s = Session(); user = s.query(User).filter_by(telegram_id=uid).first()
+    if user: user.agreed_terms = False; s.commit()
+    s.close()
+    start(m)
 
 @bot.callback_query_handler(func=lambda c: c.data in ["accept_terms","decline_terms"])
 def terms_cb(c):
@@ -401,7 +418,31 @@ def fallback(m):
     if not u or not u.agreed_terms: start(m)
     else: bot.send_message(uid, "Iltimos menyudan tanlang.", reply_markup=main_menu(uid))
 
-print("✅ KARVEXASIA professional bot ishga tushdi!")
-while True:
-    try: bot.polling(none_stop=True)
-    except Exception as e: print(f"Xatolik: {e}"); time.sleep(5)
+# ========== WEBHOOK ROUTES ==========
+@app.route('/')
+def index():
+    return 'Bot is running!'
+
+@app.route(f'/{TOKEN}', methods=['POST'])
+def getMessage():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return '!', 200
+
+@app.route('/setwebhook')
+def setwebhook():
+    webhook_url = os.getenv("WEBHOOK_URL", "")
+    if webhook_url:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"{webhook_url}/{TOKEN}")
+        return f"Webhook set to {webhook_url}/{TOKEN}"
+    return "WEBHOOK_URL not set"
+
+# ========== ASOSIY ISHGA TUSHIRISH ==========
+if __name__ == '__main__':
+    webhook_url = os.getenv("WEBHOOK_URL", "")
+    if webhook_url:
+        bot.remove_webhook()
+        bot.set_webhook(url=f"{webhook_url}/{TOKEN}")
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
