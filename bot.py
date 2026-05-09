@@ -60,7 +60,6 @@ class CargoRequest(Base):
 
 Base.metadata.create_all(engine)
 
-# State va data
 user_state = {}
 user_data = {}
 
@@ -78,47 +77,13 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- TARJIMALAR (shartnoma to'liq) ----------
+# ---------- TARJIMALAR (qisqa shartnoma) ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
         "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:","kz":"🌐 Тілді таңдаңыз:","kg":"🌐 Тилди тандаңыз:","tj":"🌐 Забонро интихоб кунед:","tr":"🌐 Dil seçin:"},
         "terms": {
-            "uz": ("📜 *KARVEX LOGISTIKA PLATFORMASI FOYDALANUVCHI SHARTNOMASI*\n\n"
-                   "1. UMUMIY QOIDALAR\n"
-                   "1.1. Ushbu shartnoma “Karvex” logistika platformasi orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.\n"
-                   "1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi va tashish jarayonining to‘g‘ridan-to‘g‘ri ijrochisi emas.\n"
-                   "1.3. Platformadan foydalanish orqali foydalanuvchi ushbu shartnoma shartlariga to‘liq rozilik bildiradi.\n\n"
-                   "2. FOYDALANUVCHILARNI RO‘YXATDAN O‘TKAZISH VA TEKSHIRUV\n"
-                   "2.1. Har bir foydalanuvchi quyidagi bosqichlardan o‘tishi shart:\n"
-                   "- Telefon raqamini tasdiqlash (OTP yoki Telegram orqali)\n"
-                   "- Pasport yoki ID kartani taqdim etish\n"
-                   "- Platforma tomonidan verifikatsiyadan o‘tish\n"
-                   "2.2. Noto‘g‘ri yoki yolg‘on ma’lumot bergan foydalanuvchilar bloklanadi.\n\n"
-                   "3. XIZMAT KO‘RSATISH SHARTLARI\n"
-                   "3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma’lumot beradi: Yuk turi, Og‘irligi, Manzil (qayerdan → qayerga)\n"
-                   "3.2. Haydovchi yukni belgilangan vaqtda va holatda yetkazishga majbur.\n"
-                   "3.3. Platforma faqat vositachi bo‘lib, tomonlar o‘rtasidagi majburiyatlar uchun cheklangan javobgarlikka ega.\n\n"
-                   "4. JAVOBGARLIK VA XAVFSIZLIK\n"
-                   "4.1. Yukning yo‘qolishi, shikastlanishi yoki kechikishi uchun haydovchi javobgar hisoblanadi.\n"
-                   "4.2. Yuk beruvchi noto‘g‘ri ma’lumot bergan taqdirda javobgar bo‘ladi.\n"
-                   "4.3. Platforma quyidagi holatlar uchun javobgar emas: Tabiiy ofatlar, Yo‘l-transport hodisalari, Fors-major holatlar.\n\n"
-                   "5. TO‘LOV VA HISOB-KITOB\n"
-                   "5.1. To‘lov tomonlar kelishuvi asosida amalga oshiriladi.\n"
-                   "5.2. Platforma xizmat haqi (komissiya) olish huquqiga ega.\n"
-                   "5.3. To‘lov tizimi orqali amalga oshirilgan operatsiyalar qaytarilmaydi (istisnolar bundan mustasno).\n\n"
-                   "6. REYTING VA FOYDALANUVCHI OBRO‘SI\n"
-                   "6.1. Har bir foydalanuvchi xizmatdan so‘ng baholanadi.\n"
-                   "6.2. Past reytingli foydalanuvchilar platformadan chetlashtirilishi mumkin.\n\n"
-                   "7. NIZOLARNI HAL QILISH\n"
-                   "7.1. Nizolar birinchi navbatda muzokara orqali hal qilinadi.\n"
-                   "7.2. Hal etilmagan holatda O‘zbekiston Respublikasi qonunchiligiga muvofiq sud orqali ko‘rib chiqiladi.\n\n"
-                   "8. MAXFIYLIK SIYOSATI\n"
-                   "8.1. Foydalanuvchi ma’lumotlari himoyalanadi va uchinchi shaxslarga berilmaydi.\n"
-                   "8.2. Platforma xavfsizlik maqsadida ma’lumotlardan foydalanish huquqiga ega.\n\n"
-                   "9. YAKUNIY QOIDALAR\n"
-                   "9.1. Platforma ushbu shartnomani istalgan vaqtda yangilash huquqiga ega.\n"
-                   "9.2. Foydalanuvchi platformadan foydalanishda davom etsa — yangi shartlarga rozilik bildirgan hisoblanadi."),
+            "uz": "📜 *FOYDALANISH SHARTLARI*\n\nFoydalanish shartlari: ma'lumotlar to'g'ri bo'lishi kerak, platforma mas'uliyatli emas.",
             "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*",
             "en": "📜 *TERMS OF USE*"
         },
@@ -436,3 +401,4 @@ print("✅ KARVEXASIA professional bot ishga tushdi!")
 while True:
     try: bot.polling(none_stop=True)
     except Exception as e: print(f"Xatolik: {e}"); time.sleep(5)
+
