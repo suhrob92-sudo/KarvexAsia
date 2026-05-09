@@ -77,15 +77,19 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- TARJIMALAR (qisqa shartnoma) ----------
+# ---------- TARJIMALAR (7 til, qisqa shartnoma) ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
         "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:","kz":"🌐 Тілді таңдаңыз:","kg":"🌐 Тилди тандаңыз:","tj":"🌐 Забонро интихоб кунед:","tr":"🌐 Dil seçin:"},
         "terms": {
             "uz": "📜 *FOYDALANISH SHARTLARI*\n\nFoydalanish shartlari: ma'lumotlar to'g'ri bo'lishi kerak, platforma mas'uliyatli emas.",
-            "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*",
-            "en": "📜 *TERMS OF USE*"
+            "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*\n\nУсловия использования: данные должны быть верными, платформа не несёт ответственности.",
+            "en": "📜 *TERMS OF USE*\n\nTerms of use: data must be accurate, platform is not liable.",
+            "kz": "📜 *ПАЙДАЛАНУ ШАРТТАРЫ*\n\nПайдалану шарттары: деректер дұрыс болуы керек, платформа жауапкершілік көтермейді.",
+            "kg": "📜 *КОЛДОНУУ ШАРТТАРЫ*\n\nКолдонуу шарттары: маалыматтар туура болушу керек, платформа жоопкерчилик тартпайт.",
+            "tj": "📜 *ШАРТҲОИ ИСТИФОДА*\n\nШартҳои истифода: маълумот бояд дуруст бошад, платформа масъулият надорад.",
+            "tr": "📜 *KULLANIM ŞARTLARI*\n\nKullanım şartları: veriler doğru olmalıdır, platform sorumlu değildir."
         },
         "accept": {"uz":"✅ Qabul qilaman","ru":"✅ Принимаю","en":"✅ I accept","kz":"✅ Қабылдаймын","kg":"✅ Кабыл алам","tj":"✅ Қабул мекунам","tr":"✅ Kabul ediyorum"},
         "decline": {"uz":"❌ Rad etaman","ru":"❌ Отклоняю","en":"❌ Decline","kz":"❌ Қабылдамаймын","kg":"❌ Четке кагам","tj":"❌ Рад мекунам","tr":"❌ Reddediyorum"},
@@ -401,4 +405,3 @@ print("✅ KARVEXASIA professional bot ishga tushdi!")
 while True:
     try: bot.polling(none_stop=True)
     except Exception as e: print(f"Xatolik: {e}"); time.sleep(5)
-
