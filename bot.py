@@ -77,19 +77,54 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- Tarjimalar (7 til) ----------
+# ---------- TO‘LIQ SHARTNOMA MATNI ----------
+FULL_TERMS_UZ = """📜 *KARVEX LOGISTIKA PLATFORMASI FOYDALANUVCHI SHARTNOMASI*
+
+1. UMUMIY QOIDALAR
+1.1. Ushbu shartnoma “Karvex” logistika platformasi (keyingi o‘rinlarda “Platforma”) orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.
+1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi va tashish jarayonining to‘g‘ridan-to‘g‘ri ijrochisi emas.
+1.3. Platformadan foydalanish orqali foydalanuvchi ushbu shartnoma shartlariga to‘liq rozilik bildiradi.
+2. FOYDALANUVCHILARNI RO‘YXATDAN O‘TKAZISH VA TEKSHIRUV
+2.1. Har bir foydalanuvchi quyidagi bosqichlardan o‘tishi shart:
+- Telefon raqamini tasdiqlash (OTP yoki Telegram orqali)
+- Pasport yoki ID kartani taqdim etish
+- Platforma tomonidan verifikatsiyadan o‘tish
+2.2. Noto‘g‘ri yoki yolg‘on ma’lumot bergan foydalanuvchilar bloklanadi.
+3. XIZMAT KO‘RSATISH SHARTLARI
+3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma’lumot beradi: Yuk turi, Og‘irligi, Manzil (qayerdan → qayerga)
+3.2. Haydovchi yukni belgilangan vaqtda va holatda yetkazishga majbur.
+3.3. Platforma faqat vositachi bo‘lib, tomonlar o‘rtasidagi majburiyatlar uchun cheklangan javobgarlikka ega.
+4. JAVOBGARLIK VA XAVFSIZLIK
+4.1. Yukning yo‘qolishi, shikastlanishi yoki kechikishi uchun haydovchi javobgar hisoblanadi.
+4.2. Yuk beruvchi noto‘g‘ri ma’lumot bergan taqdirda javobgar bo‘ladi.
+4.3. Platforma quyidagi holatlar uchun javobgar emas: Tabiiy ofatlar, Yo‘l-transport hodisalari, Fors-major holatlar.
+5. TO‘LOV VA HISOB-KITOB
+5.1. To‘lov tomonlar kelishuvi asosida amalga oshiriladi.
+5.2. Platforma xizmat haqi (komissiya) olish huquqiga ega.
+5.3. To‘lov tizimi orqali amalga oshirilgan operatsiyalar qaytarilmaydi (istisnolar bundan mustasno).
+6. REYTING VA FOYDALANUVCHI OBRO‘SI
+6.1. Har bir foydalanuvchi xizmatdan so‘ng baholanadi.
+6.2. Past reytingli foydalanuvchilar platformadan chetlashtirilishi mumkin.
+7. NIZOLARNI HAL QILISH
+7.1. Nizolar birinchi navbatda muzokara orqali hal qilinadi.
+7.2. Hal etilmagan holatda O‘zbekiston Respublikasi qonunchiligiga muvofiq sud orqali ko‘rib chiqiladi.
+8. MAXFIYLIK SIYOSATI
+8.1. Foydalanuvchi ma’lumotlari himoyalanadi va uchinchi shaxslarga berilmaydi.
+8.2. Platforma xavfsizlik maqsadida ma’lumotlardan foydalanish huquqiga ega.
+9. YAKUNIY QOIDALAR
+9.1. Platforma ushbu shartnomani istalgan vaqtda yangilash huquqiga ega.
+9.2. Foydalanuvchi platformadan foydalanishda davom etsa — yangi shartlarga rozilik bildirgan hisoblanadi."""
+
+# ---------- TARJIMALAR ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
         "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:","kz":"🌐 Тілді таңдаңыз:","kg":"🌐 Тилди тандаңыз:","tj":"🌐 Забонро интихоб кунед:","tr":"🌐 Dil seçin:"},
         "terms": {
-            "uz": "📜 *FOYDALANISH SHARTLARI*\n\nFoydalanish shartlari: ma'lumotlar to'g'ri bo'lishi kerak, platforma mas'uliyatli emas.",
+            "uz": FULL_TERMS_UZ,
             "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*\n\nУсловия использования: данные должны быть верными, платформа не несёт ответственности.",
             "en": "📜 *TERMS OF USE*\n\nTerms of use: data must be accurate, platform is not liable.",
-            "kz": "📜 *ПАЙДАЛАНУ ШАРТТАРЫ*\n\nПайдалану шарттары: деректер дұрыс болуы керек, платформа жауапкершілік көтермейді.",
-            "kg": "📜 *КОЛДОНУУ ШАРТТАРЫ*\n\nКолдонуу шарттары: маалыматтар туура болушу керек, платформа жоопкерчилик тартпайт.",
-            "tj": "📜 *ШАРТҲОИ ИСТИФОДА*\n\nШартҳои истифода: маълумот бояд дуруст бошад, платформа масъулият надорад.",
-            "tr": "📜 *KULLANIM ŞARTLARI*\n\nKullanım şartları: veriler doğru olmalıdır, platform sorumlu değildir."
+            "kz": "📜 *ПАЙДАЛАНУ ШАРТТАРЫ*", "kg": "📜 *КОЛДОНУУ ШАРТТАРЫ*", "tj": "📜 *ШАРТҲОИ ИСТИФОДА*", "tr": "📜 *KULLANIM ŞARTLARI*"
         },
         "accept": {"uz":"✅ Qabul qilaman","ru":"✅ Принимаю","en":"✅ I accept","kz":"✅ Қабылдаймын","kg":"✅ Кабыл алам","tj":"✅ Қабул мекунам","tr":"✅ Kabul ediyorum"},
         "decline": {"uz":"❌ Rad etaman","ru":"❌ Отклоняю","en":"❌ Decline","kz":"❌ Қабылдамаймын","kg":"❌ Четке кагам","tj":"❌ Рад мекунам","tr":"❌ Reddediyorum"},
@@ -115,7 +150,7 @@ def t(uid, key, **kw):
     try: return txt.format(**kw)
     except: return txt
 
-# ---------- Klaviaturalar ----------
+# ---------- KLAVIATURALAR ----------
 def lang_kb():
     mk = types.InlineKeyboardMarkup(row_width=2)
     mk.add(types.InlineKeyboardButton("🇺🇿 O'zbek", callback_data="lang_uz"),
@@ -141,7 +176,7 @@ def main_menu(uid):
 def back_btn(uid):
     return types.InlineKeyboardMarkup().add(types.InlineKeyboardButton(t(uid,"back"), callback_data="back_main"))
 
-# ---------- Masofa ----------
+# ---------- MASOFA ----------
 def get_distance(c1,c2):
     coords = {"Toshkent":(41.30,69.24),"Samarqand":(39.63,66.97),"Buxoro":(39.77,64.43),
               "Almati":(43.22,76.85),"Namangan":(41.00,71.67),"Andijon":(40.78,72.34),
@@ -395,7 +430,7 @@ def fallback(m):
     if not u or not u.agreed_terms: start(m)
     else: bot.send_message(uid, "Iltimos menyudan tanlang.", reply_markup=main_menu(uid))
 
-# ========== ISHGA TUSHIRISH (POLLING) ==========
+# ========== ISHGA TUSHIRISH ==========
 while True:
     try:
         print("Bot ishga tushdi!")
