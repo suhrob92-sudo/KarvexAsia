@@ -4,18 +4,60 @@ from datetime import datetime
 import time, math, os, threading
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
-from flask import Flask
+from flask import Flask, request, render_template, redirect, url_for, session
 
-# ---------- Flask (Render uchun port ochish) ----------
+# ---------- Flask ilovasi ----------
 app = Flask(__name__)
+app.secret_key = 'KARVEX_ASIA_SECRET_2026'  # o‘zingiz xohlagan maxfiy kalit
 
 @app.route('/')
 def index():
     return 'Bot ishlamoqda!'
 
-@app.route('/health')
-def health():
-    return 'OK', 200
+# =================== ADMIN PANEL ROUTES ===================
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        if request.form['password'] == 'admin123':  # parolni o‘zgartiring
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return render_template('login.html', error="Noto‘g‘ri parol")
+    return render_template('login.html', error=None)
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    s = Session()
+    users_count = s.query(User).count()
+    drivers_count = s.query(Driver).count()
+    orders_count = s.query(CargoRequest).count()
+    s.close()
+    return render_template('dashboard.html', users=users_count, drivers=drivers_count, orders=orders_count)
+
+@app.route('/admin/users')
+def admin_users():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    s = Session()
+    all_users = s.query(User).order_by(User.created_at.desc()).all()
+    s.close()
+    return render_template('users.html', users=all_users)
+
+@app.route('/admin/orders')
+def admin_orders():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    s = Session()
+    all_orders = s.query(CargoRequest).order_by(CargoRequest.created_at.desc()).all()
+    s.close()
+    return render_template('orders.html', orders=all_orders)
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin_login'))
 
 # ---------- Telegram bot ----------
 TOKEN = "8719425603:AAHZf6HZ1SBh7l8pYjgTvele-ElC5Nf54Hs"
@@ -49,6 +91,7 @@ class User(Base):
     passport_verified = Column(Boolean, default=False)
     balance = Column(Float, default=0.0)
     agreed_terms = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class Driver(Base):
     __tablename__ = "drivers"
@@ -289,6 +332,8 @@ def cargo_steps(m):
                                 pickup=data["pickup"],delivery=data["delivery"],phone=phone,distance=dist),
                          parse_mode="Markdown", reply_markup=main_menu(uid))
         set_state(uid,"main")
+        try: bot.send_message(ADMIN_ID, f"🔔 Yangi yuk!\n👤 {m.from_user.first_name}\n📦 {data['cargo']} | {data['weight']}t\n📍 {data['pickup']} → {data['delivery']}\n📞 {phone}")
+        except: pass
 
 @bot.message_handler(func=lambda m: get_state(m.chat.id)=="find_cargo")
 def find_cargo(m):
@@ -355,7 +400,7 @@ def passport_photo(m):
 def chat_admin(m):
     uid=m.chat.id
     bot.send_message(ADMIN_ID, f"💬 Foydalanuvchi xabari (ID: {uid}):\n{m.text}")
-    bot.send_message(uid, "✅ Xabar yuborildi.", reply_markup=main_menu(uid)); set_state(uid,"main")
+    bot.send_message(uid, "✅ Xabar yuborildi. Admin tez orada javob beradi.", reply_markup=main_menu(uid)); set_state(uid,"main")
 
 @bot.message_handler(commands=['admin'])
 def admin_panel(m):
@@ -419,16 +464,12 @@ def fallback(m):
 
 # ========== ISHGA TUSHIRISH ==========
 def run_flask():
-    """Flask server - Render port ochish uchun"""
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
-    # Flask alohida threadda ishga tushadi
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
-
-    # Bot polling qiladi
     print("Bot ishga tushdi!")
     while True:
         try:
