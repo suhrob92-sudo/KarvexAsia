@@ -1,10 +1,23 @@
 import telebot
 from telebot import types
 from datetime import datetime
-import time, math
+import time, math, os, threading
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
+from flask import Flask
 
+# ---------- Flask (Render uchun port ochish) ----------
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return 'Bot ishlamoqda!'
+
+@app.route('/health')
+def health():
+    return 'OK', 200
+
+# ---------- Telegram bot ----------
 TOKEN = "8719425603:AAHZf6HZ1SBh7l8pYjgTvele-ElC5Nf54Hs"
 ADMIN_ID = 1722191240
 bot = telebot.TeleBot(TOKEN)
@@ -77,89 +90,72 @@ def get_or_create_user(uid, uname, fname):
     if not u: u = User(telegram_id=uid, username=uname, first_name=fname); s.add(u); s.commit()
     s.close(); return u
 
-# ---------- TO‘LIQ SHARTNOMA MATNI ----------
+# ---------- Tarjimalar ----------
 FULL_TERMS_UZ = """📜 *KARVEX LOGISTIKA PLATFORMASI FOYDALANUVCHI SHARTNOMASI*
 
 1. UMUMIY QOIDALAR
-1.1. Ushbu shartnoma “Karvex” logistika platformasi (keyingi o‘rinlarda “Platforma”) orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.
-1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi va tashish jarayonining to‘g‘ridan-to‘g‘ri ijrochisi emas.
+1.1. Ushbu shartnoma "Karvex" platformasi orqali xizmat ko‘rsatishda foydalanuvchilar o‘rtasidagi munosabatlarni tartibga soladi.
+1.2. Platforma yuk beruvchi va haydovchilarni bog‘lovchi vositachi hisoblanadi.
 1.3. Platformadan foydalanish orqali foydalanuvchi ushbu shartnoma shartlariga to‘liq rozilik bildiradi.
 2. FOYDALANUVCHILARNI RO‘YXATDAN O‘TKAZISH VA TEKSHIRUV
 2.1. Har bir foydalanuvchi quyidagi bosqichlardan o‘tishi shart:
-- Telefon raqamini tasdiqlash (OTP yoki Telegram orqali)
+- Telefon raqamini tasdiqlash
 - Pasport yoki ID kartani taqdim etish
 - Platforma tomonidan verifikatsiyadan o‘tish
-2.2. Noto‘g‘ri yoki yolg‘on ma’lumot bergan foydalanuvchilar bloklanadi.
+2.2. Noto‘g‘ri ma'lumot bergan foydalanuvchilar bloklanadi.
 3. XIZMAT KO‘RSATISH SHARTLARI
-3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma’lumot beradi: Yuk turi, Og‘irligi, Manzil (qayerdan → qayerga)
-3.2. Haydovchi yukni belgilangan vaqtda va holatda yetkazishga majbur.
-3.3. Platforma faqat vositachi bo‘lib, tomonlar o‘rtasidagi majburiyatlar uchun cheklangan javobgarlikka ega.
+3.1. Yuk beruvchi yuk haqida to‘liq va aniq ma'lumot beradi.
+3.2. Haydovchi yukni belgilangan vaqtda yetkazishga majbur.
+3.3. Platforma faqat vositachi bo‘lib, cheklangan javobgarlikka ega.
 4. JAVOBGARLIK VA XAVFSIZLIK
-4.1. Yukning yo‘qolishi, shikastlanishi yoki kechikishi uchun haydovchi javobgar hisoblanadi.
-4.2. Yuk beruvchi noto‘g‘ri ma’lumot bergan taqdirda javobgar bo‘ladi.
-4.3. Platforma quyidagi holatlar uchun javobgar emas: Tabiiy ofatlar, Yo‘l-transport hodisalari, Fors-major holatlar.
+4.1. Yukning yo‘qolishi yoki shikastlanishi uchun haydovchi javobgar.
+4.2. Platforma fors-major holatlar uchun javobgar emas.
 5. TO‘LOV VA HISOB-KITOB
 5.1. To‘lov tomonlar kelishuvi asosida amalga oshiriladi.
-5.2. Platforma xizmat haqi (komissiya) olish huquqiga ega.
-5.3. To‘lov tizimi orqali amalga oshirilgan operatsiyalar qaytarilmaydi (istisnolar bundan mustasno).
-6. REYTING VA FOYDALANUVCHI OBRO‘SI
+6. REYTING VA OBRO‘
 6.1. Har bir foydalanuvchi xizmatdan so‘ng baholanadi.
-6.2. Past reytingli foydalanuvchilar platformadan chetlashtirilishi mumkin.
 7. NIZOLARNI HAL QILISH
-7.1. Nizolar birinchi navbatda muzokara orqali hal qilinadi.
-7.2. Hal etilmagan holatda O‘zbekiston Respublikasi qonunchiligiga muvofiq sud orqali ko‘rib chiqiladi.
+7.1. Nizolar muzokara orqali hal qilinadi.
 8. MAXFIYLIK SIYOSATI
-8.1. Foydalanuvchi ma’lumotlari himoyalanadi va uchinchi shaxslarga berilmaydi.
-8.2. Platforma xavfsizlik maqsadida ma’lumotlardan foydalanish huquqiga ega.
+8.1. Ma'lumotlar uchinchi shaxslarga berilmaydi.
 9. YAKUNIY QOIDALAR
-9.1. Platforma ushbu shartnomani istalgan vaqtda yangilash huquqiga ega.
-9.2. Foydalanuvchi platformadan foydalanishda davom etsa — yangi shartlarga rozilik bildirgan hisoblanadi."""
+9.1. Platforma shartnomani yangilash huquqiga ega."""
 
-# ---------- TARJIMALAR ----------
 def t(uid, key, **kw):
     u = get_user(uid); lang = u.language if u and u.language else "uz"
     D = {
-        "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:","kz":"🌐 Тілді таңдаңыз:","kg":"🌐 Тилди тандаңыз:","tj":"🌐 Забонро интихоб кунед:","tr":"🌐 Dil seçin:"},
-        "terms": {
-            "uz": FULL_TERMS_UZ,
-            "ru": "📜 *УСЛОВИЯ ИСПОЛЬЗОВАНИЯ*\n\nУсловия использования: данные должны быть верными, платформа не несёт ответственности.",
-            "en": "📜 *TERMS OF USE*\n\nTerms of use: data must be accurate, platform is not liable.",
-            "kz": "📜 *ПАЙДАЛАНУ ШАРТТАРЫ*", "kg": "📜 *КОЛДОНУУ ШАРТТАРЫ*", "tj": "📜 *ШАРТҲОИ ИСТИФОДА*", "tr": "📜 *KULLANIM ŞARTLARI*"
-        },
-        "accept": {"uz":"✅ Qabul qilaman","ru":"✅ Принимаю","en":"✅ I accept","kz":"✅ Қабылдаймын","kg":"✅ Кабыл алам","tj":"✅ Қабул мекунам","tr":"✅ Kabul ediyorum"},
-        "decline": {"uz":"❌ Rad etaman","ru":"❌ Отклоняю","en":"❌ Decline","kz":"❌ Қабылдамаймын","kg":"❌ Четке кагам","tj":"❌ Рад мекунам","tr":"❌ Reddediyorum"},
-        "welcome": {"uz":"🚛 *KARVEXASIA*\nBalans: {balance} so‘m\nXizmatni tanlang:","ru":"🚛 *KARVEXASIA*\nБаланс: {balance} сум","en":"🚛 *KARVEXASIA*\nBalance: {balance} UZS","tr":"🚛 *KARVEXASIA*\nBakiye: {balance} TL"},
-        "btn_cargo": {"uz":"📦 Yuk berish","ru":"📦 Отправить груз","en":"📦 Send cargo","tr":"📦 Yük gönder"},
-        "btn_find": {"uz":"🔍 Yuk qidirish","ru":"🔍 Найти груз","en":"🔍 Find cargo","tr":"🔍 Yük ara"},
-        "btn_driver": {"uz":"🚛 Haydovchi bo‘lish","ru":"🚛 Стать водителем","en":"🚛 Become driver","tr":"🚛 Sürücü ol"},
-        "btn_orders": {"uz":"📋 Buyurtmalarim","ru":"📋 Мои заказы","en":"📋 My orders","tr":"📋 Siparişlerim"},
-        "btn_verify": {"uz":"🆔 Verifikatsiya","ru":"🆔 Верификация","en":"🆔 Verification","tr":"🆔 Doğrulama"},
-        "btn_chat": {"uz":"💬 Qo‘llab-quvvatlash","ru":"💬 Поддержка","en":"💬 Support","tr":"💬 Destek"},
-        "btn_balance": {"uz":"💰 Balans","ru":"💰 Баланс","en":"💰 Balance","tr":"💰 Bakiye"},
-        "back": {"uz":"⬅️ Orqaga","ru":"⬅️ Назад","en":"⬅️ Back","tr":"⬅️ Geri"},
-        "cargo_type": {"uz":"📦 Yuk turini tanlang:","tr":"📦 Yük türünü seçin:"},
-        "cargo_weight": {"uz":"⚖️ Ogʻirlik (tonna):","tr":"⚖️ Ağırlık (t):"},
-        "cargo_pickup": {"uz":"📍 Qayerdan olib ketish?","tr":"📍 Nereden?"},
-        "cargo_delivery": {"uz":"📍 Qayerga yetkazish?","tr":"📍 Nereye?"},
-        "cargo_phone": {"uz":"📞 Telefon raqamingiz:","tr":"📞 Telefon numaranız:"},
-        "cargo_success": {"uz":"✅ *Yuk eʼloni qabul qilindi!*\n📦 {cargo}\n⚖️ {weight} t\n📍 {pickup} → {delivery}\n📞 {phone}\n📏 Taxminiy masofa: {distance} km\n\n🔔 Haydovchilar siz bilan bog‘lanadi.","tr":"✅ Yük ilanı alındı!"},
-        "no_orders": {"uz":"📋 Hozircha buyurtmalar yoʻq.","tr":"📋 Henüz sipariş yok."},
-        "no_cargo": {"uz":"🔍 Hech narsa topilmadi.","tr":"🔍 Hiçbir şey bulunamadı."},
+        "choose_lang": {"uz":"🌐 Tilni tanlang:","ru":"🌐 Выберите язык:","en":"🌐 Select language:"},
+        "terms": {"uz": FULL_TERMS_UZ, "ru": "📜 *УСЛОВИЯ*", "en": "📜 *TERMS*"},
+        "accept": {"uz":"✅ Qabul qilaman","ru":"✅ Принимаю","en":"✅ I accept"},
+        "decline": {"uz":"❌ Rad etaman","ru":"❌ Отклоняю","en":"❌ Decline"},
+        "welcome": {"uz":"🚛 *KARVEXASIA*\nBalans: {balance} so‘m\nXizmatni tanlang:","ru":"🚛 *KARVEXASIA*\nБаланс: {balance} сум","en":"🚛 *KARVEXASIA*\nBalance: {balance} UZS"},
+        "btn_cargo": {"uz":"📦 Yuk berish","ru":"📦 Отправить груз","en":"📦 Send cargo"},
+        "btn_find": {"uz":"🔍 Yuk qidirish","ru":"🔍 Найти груз","en":"🔍 Find cargo"},
+        "btn_driver": {"uz":"🚛 Haydovchi bo‘lish","ru":"🚛 Стать водителем","en":"🚛 Become driver"},
+        "btn_orders": {"uz":"📋 Buyurtmalarim","ru":"📋 Мои заказы","en":"📋 My orders"},
+        "btn_verify": {"uz":"🆔 Verifikatsiya","ru":"🆔 Верификация","en":"🆔 Verification"},
+        "btn_chat": {"uz":"💬 Qo‘llab-quvvatlash","ru":"💬 Поддержка","en":"💬 Support"},
+        "btn_balance": {"uz":"💰 Balans","ru":"💰 Баланс","en":"💰 Balance"},
+        "back": {"uz":"⬅️ Orqaga","ru":"⬅️ Назад","en":"⬅️ Back"},
+        "cargo_type": {"uz":"📦 Yuk turini tanlang:","ru":"📦 Тип груза:","en":"📦 Select cargo type:"},
+        "cargo_weight": {"uz":"⚖️ Ogʻirlik (tonna):","ru":"⚖️ Вес (т):","en":"⚖️ Weight (t):"},
+        "cargo_pickup": {"uz":"📍 Qayerdan olib ketish?","ru":"📍 Откуда?","en":"📍 Pickup:"},
+        "cargo_delivery": {"uz":"📍 Qayerga yetkazish?","ru":"📍 Куда?","en":"📍 Delivery:"},
+        "cargo_phone": {"uz":"📞 Telefon raqamingiz:","ru":"📞 Ваш телефон:","en":"📞 Phone:"},
+        "cargo_success": {"uz":"✅ *Yuk eʼloni qabul qilindi!*\n📦 {cargo}\n⚖️ {weight} t\n📍 {pickup} → {delivery}\n📞 {phone}\n📏 ~{distance} km\n\n🔔 Haydovchilar siz bilan bog‘lanadi.","ru":"✅ Груз принят!","en":"✅ Cargo accepted!"},
+        "no_orders": {"uz":"📋 Hozircha buyurtmalar yoʻq.","ru":"📋 Заказов нет.","en":"📋 No orders."},
+        "no_cargo": {"uz":"🔍 Hech narsa topilmadi.","ru":"🔍 Ничего не найдено.","en":"🔍 Nothing found."},
     }
     txt = D.get(key,{}).get(lang, D.get(key,{}).get("uz",key))
     try: return txt.format(**kw)
     except: return txt
 
-# ---------- KLAVIATURALAR ----------
+# ---------- Klaviaturalar ----------
 def lang_kb():
     mk = types.InlineKeyboardMarkup(row_width=2)
     mk.add(types.InlineKeyboardButton("🇺🇿 O'zbek", callback_data="lang_uz"),
            types.InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru"),
-           types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"),
-           types.InlineKeyboardButton("🇰🇿 Қазақ", callback_data="lang_kz"),
-           types.InlineKeyboardButton("🇰🇬 Кыргыз", callback_data="lang_kg"),
-           types.InlineKeyboardButton("🇹🇯 Тоҷик", callback_data="lang_tj"),
-           types.InlineKeyboardButton("🇹🇷 Türk", callback_data="lang_tr"))
+           types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"))
     return mk
 
 def main_menu(uid):
@@ -176,7 +172,7 @@ def main_menu(uid):
 def back_btn(uid):
     return types.InlineKeyboardMarkup().add(types.InlineKeyboardButton(t(uid,"back"), callback_data="back_main"))
 
-# ---------- MASOFA ----------
+# ---------- Masofa ----------
 def get_distance(c1,c2):
     coords = {"Toshkent":(41.30,69.24),"Samarqand":(39.63,66.97),"Buxoro":(39.77,64.43),
               "Almati":(43.22,76.85),"Namangan":(41.00,71.67),"Andijon":(40.78,72.34),
@@ -264,10 +260,8 @@ def menu_handler(c):
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("ctype_"))
 def cargo_type_cb(c):
-    uid=c.message.chat.id
-    cargo_type=c.data.split("_",1)[1]
-    set_data(uid,"cargo_type",cargo_type)
-    set_state(uid,"cargo_weight")
+    uid=c.message.chat.id; cargo_type=c.data.split("_",1)[1]
+    set_data(uid,"cargo_type",cargo_type); set_state(uid,"cargo_weight")
     bot.edit_message_text(chat_id=uid, message_id=c.message.message_id, text=t(uid,"cargo_weight"), reply_markup=back_btn(uid))
 
 @bot.message_handler(func=lambda m: get_state(m.chat.id) in ["cargo_weight","cargo_pickup","cargo_delivery","cargo_phone"])
@@ -295,8 +289,6 @@ def cargo_steps(m):
                                 pickup=data["pickup"],delivery=data["delivery"],phone=phone,distance=dist),
                          parse_mode="Markdown", reply_markup=main_menu(uid))
         set_state(uid,"main")
-        try: bot.send_message(ADMIN_ID, f"🔔 Yangi yuk!\n👤 {m.from_user.first_name}\n📦 {data['cargo']} | {data['weight']}t\n📍 {data['pickup']} → {data['delivery']}\n📞 {phone}")
-        except: pass
 
 @bot.message_handler(func=lambda m: get_state(m.chat.id)=="find_cargo")
 def find_cargo(m):
@@ -308,8 +300,7 @@ def find_cargo(m):
         txt=f"🔍 {city} bo'yicha yuklar:\n\n"
         for r in results: txt+=f"📦 {r.cargo_type} | {r.pickup}→{r.delivery} | 📞 {r.phone}\n"
     else: txt=t(uid,"no_cargo")
-    bot.send_message(uid, txt, reply_markup=main_menu(uid))
-    set_state(uid,"main")
+    bot.send_message(uid, txt, reply_markup=main_menu(uid)); set_state(uid,"main")
 
 @bot.message_handler(func=lambda m: get_state(m.chat.id)=="driver_name")
 def driver_name(m):
@@ -324,15 +315,12 @@ def driver_phone(m):
 @bot.message_handler(func=lambda m: get_state(m.chat.id)=="driver_car")
 def driver_car(m):
     uid=m.chat.id; car=m.text
-    s=Session()
-    exist=s.query(Driver).filter_by(user_id=uid).first()
-    if exist:
-        exist.car_model=car; exist.phone=get_data(uid,"driver_phone"); exist.full_name=get_data(uid,"driver_name")
+    s=Session(); exist=s.query(Driver).filter_by(user_id=uid).first()
+    if exist: exist.car_model=car; exist.phone=get_data(uid,"driver_phone"); exist.full_name=get_data(uid,"driver_name")
     else:
         d=Driver(user_id=uid, full_name=get_data(uid,"driver_name"), phone=get_data(uid,"driver_phone"), car_model=car)
         s.add(d)
-    s.commit(); s.close()
-    set_state(uid,"main")
+    s.commit(); s.close(); set_state(uid,"main")
     bot.send_message(uid, "✅ Haydovchi sifatida ro'yxatdan o'tdingiz!", reply_markup=main_menu(uid))
 
 @bot.callback_query_handler(func=lambda c: c.data=="verify_phone")
@@ -367,8 +355,7 @@ def passport_photo(m):
 def chat_admin(m):
     uid=m.chat.id
     bot.send_message(ADMIN_ID, f"💬 Foydalanuvchi xabari (ID: {uid}):\n{m.text}")
-    bot.send_message(uid, "✅ Xabar yuborildi. Admin tez orada javob beradi.", reply_markup=main_menu(uid))
-    set_state(uid,"main")
+    bot.send_message(uid, "✅ Xabar yuborildi.", reply_markup=main_menu(uid)); set_state(uid,"main")
 
 @bot.message_handler(commands=['admin'])
 def admin_panel(m):
@@ -431,10 +418,21 @@ def fallback(m):
     else: bot.send_message(uid, "Iltimos menyudan tanlang.", reply_markup=main_menu(uid))
 
 # ========== ISHGA TUSHIRISH ==========
-while True:
-    try:
-        print("Bot ishga tushdi!")
-        bot.polling(none_stop=True)
-    except Exception as e:
-        print(f"Xatolik: {e}")
-        time.sleep(5)
+def run_flask():
+    """Flask server - Render port ochish uchun"""
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    # Flask alohida threadda ishga tushadi
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+
+    # Bot polling qiladi
+    print("Bot ishga tushdi!")
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print(f"Xatolik: {e}")
+            time.sleep(5)
